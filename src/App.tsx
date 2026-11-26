@@ -25,6 +25,7 @@ import {
 import KitchenDashboard from "./pages/KitchenDashboard";
 import InventoryDashboard from "./pages/InventoryDashboard";
 import AuthModal from "./AuthModal";
+import ProductDetail from "./ProductDetail";
 
 type AuthUser = {
   _id: string;
@@ -56,6 +57,8 @@ type ApiMenuItem = {
 
 type CartItem = FoodItem & {
   quantity: number;
+  menuItemId?: string;
+  customization?: string;
 };
 
 type CustomerOrder = {
@@ -65,14 +68,15 @@ type CustomerOrder = {
   email: string;
   address: string;
   phone: string;
-  items: {
-    id: string | number;
-    name: string;
-    price: number;
-    quantity: number;
-    rating?: string;
-    image?: string;
-  }[];
+items: {
+  id: string | number;
+  name: string;
+  price: number;
+  quantity: number;
+  rating?: string;
+  image?: string;
+  customization?: string;
+}[];
   total: number;
   status: string;
 };
@@ -93,6 +97,7 @@ function App() {
 
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
 
   const [kitchenOpen, setKitchenOpen] = useState(false);
   const [inventoryOpen, setInventoryOpen] = useState(false);
@@ -281,6 +286,30 @@ function App() {
     showToast(`${food.name} added to your cart`);
   }
 
+  function addCustomizedToCart(item: {
+  food: FoodItem;
+  quantity: number;
+  sauce: string;
+  flavor: string;
+  toppings: string[];
+  unitPrice: number;
+  customization: string;
+}) {
+  const customizedItem: CartItem = {
+    ...item.food,
+    id: `${item.food.id}-${Date.now()}`,
+    menuItemId: item.food.id,
+    price: item.unitPrice,
+    quantity: item.quantity,
+    customization: item.customization,
+  };
+
+  setCart((previousCart) => [...previousCart, customizedItem]);
+
+  showToast(`${item.food.name} added to your cart`);
+}
+
+
   function increaseQuantity(id: string) {
     setCart((previousCart) =>
       previousCart.map((item) =>
@@ -418,6 +447,7 @@ function App() {
       );
     }
 
+
     return (
       <>
         <button
@@ -430,6 +460,19 @@ function App() {
       </>
     );
   }
+
+if (selectedFood) {
+  return (
+    <ProductDetail
+      food={selectedFood}
+      onBack={() => setSelectedFood(null)}
+      onAddToCart={(item) => {
+        addCustomizedToCart(item);
+        setSelectedFood(null);
+      }}
+    />
+  );
+}
 
   return (
     <div className="min-h-screen bg-[#F8F3EA] text-[#29231F] overflow-x-hidden">
@@ -639,11 +682,11 @@ function App() {
                 const formData = new FormData(e.currentTarget);
 
                 const missingItem = cart.some((item) =>
-                  !apiMenuItems.some(
-                    (apiItem) =>
-                      apiItem._id === item.id && apiItem.isAvailable !== false
-                  )
-                );
+  !apiMenuItems.some((apiItem) =>
+    apiItem._id === (item.menuItemId || item.id) &&
+    apiItem.isAvailable !== false
+  )
+);
 
                 if (missingItem) {
                   alert("Some items are no longer available. Please refresh your menu.");
@@ -652,12 +695,14 @@ function App() {
 
                 const orderItems = cart.map((item) => {
                   const apiItem = apiMenuItems.find(
-                    (apiMenuItem) => apiMenuItem._id === item.id
-                  );
+  (apiMenuItem) => apiMenuItem._id === (item.menuItemId || item.id)
+);
 
                   return {
                     menuItem: apiItem?._id,
-                    name: item.name,
+                    name: item.customization
+  ? `${item.name} (${item.customization})`
+  : item.name,
                     price: item.price,
                     quantity: item.quantity,
                   };
@@ -831,10 +876,24 @@ function App() {
                   <p className="text-gray-500 text-sm mt-1">{order.address}</p>
                   <div className="border-t mt-5 pt-5">
                     {order.items.map((item) => (
-                      <div key={item.id} className="flex justify-between gap-4 text-sm mb-3">
-                        <span>{item.name} × {item.quantity}</span>
-                        <span className="font-semibold">PKR {(item.price * item.quantity).toLocaleString("en-PK")}</span>
-                      </div>
+                      
+<div key={item.id} className="flex justify-between gap-4 text-sm mb-3">
+  <div>
+    <p className="font-semibold">
+      {item.name} × {item.quantity}
+    </p>
+    {item.customization && (
+      <p className="text-xs text-gray-500 mt-1">
+        {item.customization}
+      </p>
+    )}
+  </div>
+
+  <span className="font-semibold whitespace-nowrap">
+    PKR {(item.price * item.quantity).toLocaleString("en-PK")}
+  </span>
+</div>
+
                     ))}
                     <div className="flex justify-between font-black text-lg mt-5">
                       <span>Total</span>
@@ -1053,56 +1112,84 @@ function App() {
                   {foodItems.map((food) => {
                     const cartItem = cart.find((item) => item.id === food.id);
 
-                    return (
-                      <article key={food.id} className="premium-card bg-[#F8F3EA] rounded-[26px] overflow-hidden border border-[#29231F]/5">
-                        <div className="relative h-56 overflow-hidden">
-                          <img
-                            src={food.image}
-                            alt={food.name}
-                            className="food-image w-full h-full object-cover"
-                            loading="lazy"
-                          />
-                          <span className="absolute top-4 left-4 bg-white/95 backdrop-blur text-[#29231F] text-xs font-bold px-3 py-2 rounded-full">
-                            {food.category}
-                          </span>
-                          <span className="absolute top-4 right-4 bg-white/95 text-[#29231F] text-xs font-bold px-3 py-2 rounded-full flex items-center gap-1">
-                            <Star size={13} fill="#E85D24" className="text-[#E85D24]" /> {food.rating}
-                          </span>
-                        </div>
+           
+return (
+  <article
+    key={food.id}
+    onClick={() => setSelectedFood(food)}
+    className="premium-card bg-[#F8F3EA] rounded-[26px] overflow-hidden border border-[#29231F]/5 cursor-pointer"
+  >
+    <div className="relative h-56 overflow-hidden">
+      <img
+        src={food.image}
+        alt={food.name}
+        className="food-image w-full h-full object-cover"
+        loading="lazy"
+      />
+      <span className="absolute top-4 left-4 bg-white/95 backdrop-blur text-[#29231F] text-xs font-bold px-3 py-2 rounded-full">
+        {food.category}
+      </span>
+      <span className="absolute top-4 right-4 bg-white/95 text-[#29231F] text-xs font-bold px-3 py-2 rounded-full flex items-center gap-1">
+        <Star size={13} fill="#E85D24" className="text-[#E85D24]" /> {food.rating}
+      </span>
+    </div>
 
-                        <div className="p-5">
-                          <h3 className="font-black text-lg leading-snug">{food.name}</h3>
-                          <p className="text-gray-500 text-sm mt-2 min-h-[40px] line-clamp-2">{food.description}</p>
+    <div className="p-5">
+      <h3 className="font-black text-lg leading-snug">{food.name}</h3>
+      <p className="text-gray-500 text-sm mt-2 min-h-[40px] line-clamp-2">
+        {food.description}
+      </p>
 
-                          <div className="flex justify-between items-center mt-5 gap-3">
-                            <div>
-                              <p className="text-[10px] text-gray-400 font-bold tracking-widest">PRICE</p>
-                              <p className="text-[#E85D24] text-xl font-black mt-1">PKR {food.price.toLocaleString("en-PK")}</p>
-                            </div>
+      <div className="flex justify-between items-center mt-5 gap-3">
+        <div>
+          <p className="text-[10px] text-gray-400 font-bold tracking-widest">PRICE</p>
+          <p className="text-[#E85D24] text-xl font-black mt-1">
+            PKR {food.price.toLocaleString("en-PK")}
+          </p>
+        </div>
 
-                            {cartItem ? (
-                              <div className="flex items-center gap-3 bg-white rounded-xl px-3 py-2.5">
-                                <button onClick={() => decreaseQuantity(food.id)} className="text-[#E85D24]" aria-label="Decrease quantity">
-                                  <Minus size={17} />
-                                </button>
-                                <span className="font-black">{cartItem.quantity}</span>
-                                <button onClick={() => increaseQuantity(food.id)} className="text-[#E85D24]" aria-label="Increase quantity">
-                                  <Plus size={17} />
-                                </button>
-                              </div>
-                            ) : (
-                              <button
-                                onClick={() => addToCart(food)}
-                                className="w-12 h-12 rounded-xl orange-gradient text-white flex items-center justify-center hover:scale-110 transition shadow-lg shadow-orange-900/10"
-                                aria-label={`Add ${food.name} to cart`}
-                              >
-                                <Plus size={22} />
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </article>
-                    );
+        {cartItem ? (
+          <div
+            onClick={(event) => event.stopPropagation()}
+            className="flex items-center gap-3 bg-white rounded-xl px-3 py-2.5"
+          >
+            <button
+              onClick={() => decreaseQuantity(food.id)}
+              className="text-[#E85D24]"
+              aria-label="Decrease quantity"
+            >
+              <Minus size={17} />
+            </button>
+            <span className="font-black">{cartItem.quantity}</span>
+            <button
+              onClick={() => increaseQuantity(food.id)}
+              className="text-[#E85D24]"
+              aria-label="Increase quantity"
+            >
+              <Plus size={17} />
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={(event) => {
+              event.stopPropagation();
+              addToCart(food);
+            }}
+            className="w-12 h-12 rounded-xl orange-gradient text-white flex items-center justify-center hover:scale-110 transition shadow-lg shadow-orange-900/10"
+            aria-label={`Add ${food.name} to cart`}
+          >
+            <Plus size={22} />
+          </button>
+        )}
+      </div>
+
+      <p className="text-xs text-[#E85D24] font-semibold mt-4">
+        View details and customize <span>→</span>
+      </p>
+    </div>
+  </article>
+);
+
                   })}
                 </div>
               )}
