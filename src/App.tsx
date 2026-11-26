@@ -130,8 +130,7 @@ function App() {
         setMenuLoading(true);
         setMenuError("");
 
-        const response = await fetch("http://localhost:5000/api/menu");
-
+     const response = await fetch("https://cravehub-backend.netlify.app/api/menu");
         if (!response.ok) {
           throw new Error("Unable to load menu");
         }
@@ -1121,7 +1120,7 @@ return (
   >
     <div className="relative h-56 overflow-hidden">
       <img
-        src={food.image}
+       src={food.image || "https://placehold.co/600x400?text=CraveHub"}
         alt={food.name}
         className="food-image w-full h-full object-cover"
         loading="lazy"
