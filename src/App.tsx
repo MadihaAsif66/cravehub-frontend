@@ -24,6 +24,7 @@ import {
 
 import KitchenDashboard from "./pages/KitchenDashboard";
 import InventoryDashboard from "./pages/InventoryDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 import AuthModal from "./AuthModal";
 import ProductDetail from "./ProductDetail";
 
@@ -101,6 +102,7 @@ function App() {
 
   const [kitchenOpen, setKitchenOpen] = useState(false);
   const [inventoryOpen, setInventoryOpen] = useState(false);
+  const [adminOpen, setAdminOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -406,11 +408,11 @@ function App() {
     return (
       <>
         <button
-          onClick={() => setKitchenOpen(false)}
-          className="bg-orange-600 text-white px-5 py-3 rounded-xl m-5"
-        >
-          ← Back to CraveHub
-        </button>
+  onClick={() => setKitchenOpen(false)}
+  className="ml-6 mt-5 mb-2 rounded-lg border border-white/10 bg-[#201f1c] px-4 py-2 text-sm font-medium text-white/70 transition hover:border-orange-400/40 hover:text-orange-300"
+>
+  ← Back to CraveHub
+</button>
         <KitchenDashboard
           token={authToken ?? ""}
           role={currentUser.role}
@@ -450,15 +452,54 @@ function App() {
     return (
       <>
         <button
-          onClick={() => setInventoryOpen(false)}
-          className="bg-orange-600 text-white px-5 py-3 rounded-xl m-5"
-        >
-          ← Back to CraveHub
-        </button>
+  onClick={() => setInventoryOpen(false)}
+  className="ml-6 mt-5 mb-2 rounded-lg border border-white/10 bg-[#201f1c] px-4 py-2 text-sm font-medium text-white/70 transition hover:border-orange-400/40 hover:text-orange-300"
+>
+  ← Back to CraveHub
+</button>
         <InventoryDashboard token={authToken ?? ""} />
       </>
     );
   }
+
+
+
+  if (adminOpen) {
+  if (!currentUser || currentUser.role !== "Admin") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F8F3EA]">
+        <div className="text-center">
+          <ShieldCheck size={54} className="mx-auto text-orange-600" />
+          <h2 className="mt-4 text-3xl font-bold text-[#29231F]">
+            Access Denied
+          </h2>
+          <button
+            onClick={() => {
+              setAdminOpen(false);
+              setAuthOpen(true);
+            }}
+            className="mt-5 rounded-xl bg-orange-600 px-6 py-3 text-white"
+          >
+            Sign In
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <button
+        onClick={() => setAdminOpen(false)}
+        className="m-5 rounded-xl bg-orange-600 px-5 py-3 text-white"
+      >
+        ← Back to CraveHub
+      </button>
+     <AdminDashboard token={authToken ?? ""} />
+    </>
+  );
+}
+
 
 if (selectedFood) {
   return (
@@ -517,134 +558,174 @@ if (selectedFood) {
         Fresh flavours, unforgettable moments — made just for you.
       </div>
 
-      {/* Navbar */}
-      <nav className="sticky top-0 z-40 bg-[#F8F3EA]/95 backdrop-blur-xl border-b border-[#29231F]/10">
-        <div className="max-w-[1400px] mx-auto px-5 md:px-12 py-4 flex items-center justify-between">
-          <a href="#" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl orange-gradient flex items-center justify-center text-white">
-              <Utensils size={21} />
-            </div>
-            <span className="text-2xl md:text-3xl font-black tracking-tight">
-              CraveHub<span className="text-[#E85D24]">.</span>
-            </span>
-          </a>
+     
+{/* Navbar */}
+<nav className="sticky top-0 z-40 bg-[#F8F3EA]/95 backdrop-blur-xl border-b border-[#29231F]/10">
+  <div className="max-w-[1400px] mx-auto px-4 xl:px-7 py-4 flex items-center justify-between gap-4">
 
-          <div className="hidden lg:flex items-center gap-9 text-sm font-semibold text-[#655B53]">
-            <a href="#" className="text-[#E85D24]">Home</a>
-            <a href="#menu" className="hover:text-[#E85D24] transition">Our Menu</a>
-            <a href="#about" className="hover:text-[#E85D24] transition">Our Story</a>
-            <a href="#reviews" className="hover:text-[#E85D24] transition">Reviews</a>
-            <a href="#contact" className="hover:text-[#E85D24] transition">Contact</a>
-          </div>
+    {/* Logo */}
+    <a href="#" className="flex items-center gap-2 shrink-0">
+      <div className="w-10 h-10 rounded-xl orange-gradient flex items-center justify-center text-white">
+        <Utensils size={21} />
+      </div>
+      <span className="text-2xl font-black tracking-tight">
+        CraveHub<span className="text-[#E85D24]">.</span>
+      </span>
+    </a>
 
-          <div className="flex items-center gap-2 md:gap-3">
-            <button
-              onClick={() => {
-                document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" });
-                window.setTimeout(() => {
-                  document.getElementById("menu-search")?.focus();
-                }, 500);
-              }}
-              className="hidden sm:flex w-10 h-10 items-center justify-center rounded-full hover:bg-white transition"
-              aria-label="Search menu"
-            >
-              <Search size={19} />
-            </button>
+    {/* Customer Navigation */}
+    <div className="hidden lg:flex items-center gap-4 xl:gap-5 text-sm font-semibold text-[#655B53]">
+      <a href="#" className="text-[#E85D24]">Home</a>
+      <a href="#menu" className="hover:text-[#E85D24] transition">Our Menu</a>
+      <a href="#about" className="hover:text-[#E85D24] transition">Our Story</a>
+      <a href="#reviews" className="hover:text-[#E85D24] transition">Reviews</a>
+      <a href="#contact" className="hover:text-[#E85D24] transition">Contact</a>
+    </div>
 
-            <button
-              onClick={() => setCartOpen(true)}
-              className="relative w-10 h-10 rounded-full hover:bg-white flex items-center justify-center"
-              aria-label="Open cart"
-            >
-              <ShoppingBag size={20} />
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#E85D24] text-white text-[10px] rounded-full flex items-center justify-center font-bold">
-                  {cartCount}
-                </span>
-              )}
-            </button>
+    {/* Actions */}
+    <div className="flex items-center gap-1.5 xl:gap-2 shrink-0">
 
-            <button
-              onClick={() => setOrdersOpen(true)}
-              className="hidden md:block border border-[#29231F]/20 px-4 py-2.5 rounded-full text-sm font-semibold hover:bg-white transition"
-            >
-              My Orders
-            </button>
+      <button
+        onClick={() => {
+          document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" });
+          window.setTimeout(() => {
+            document.getElementById("menu-search")?.focus();
+          }, 500);
+        }}
+        className="hidden sm:flex w-9 h-9 items-center justify-center rounded-full hover:bg-white transition"
+        aria-label="Search menu"
+      >
+        <Search size={19} />
+      </button>
 
-            {(currentUser?.role === "Kitchen Staff" ||
-              currentUser?.role === "Manager" ||
-              currentUser?.role === "Admin") && (
-              <button
-                onClick={() => setKitchenOpen(true)}
-                className="hidden xl:block bg-[#29231F] text-white px-4 py-2.5 rounded-full text-sm font-semibold hover:bg-[#E85D24]"
-              >
-                Kitchen
-              </button>
-            )}
-
-            {(currentUser?.role === "Manager" ||
-              currentUser?.role === "Admin") && (
-              <button
-                onClick={() => setInventoryOpen(true)}
-                className="hidden xl:block bg-[#899477] text-white px-4 py-2.5 rounded-full text-sm font-semibold"
-              >
-                Inventory
-              </button>
-            )}
-
-            {currentUser ? (
-              <div className="hidden md:flex items-center gap-3">
-                <span className="text-sm font-bold max-w-[100px] truncate">
-                  {currentUser.name}
-                </span>
-                <button
-                  onClick={logout}
-                  className="border border-[#E85D24] text-[#E85D24] px-4 py-2 rounded-full text-sm font-bold hover:bg-[#E85D24] hover:text-white transition"
-                >
-                  Logout
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => setAuthOpen(true)}
-                className="hidden md:flex items-center gap-2 orange-gradient text-white px-5 py-3 rounded-full text-sm font-bold shadow-lg shadow-orange-900/10 hover:scale-105 transition"
-              >
-                <UserRound size={16} />
-                Sign In
-              </button>
-            )}
-
-            <button
-              className="lg:hidden w-10 h-10 flex items-center justify-center"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle menu"
-            >
-              {mobileMenuOpen ? <X /> : <MenuIcon />}
-            </button>
-          </div>
-        </div>
-
-        {mobileMenuOpen && (
-          <div className="lg:hidden bg-[#F8F3EA] border-t border-[#29231F]/10 px-6 py-5 space-y-4">
-            <a href="#menu" onClick={() => setMobileMenuOpen(false)} className="block font-semibold">Our Menu</a>
-            <a href="#about" onClick={() => setMobileMenuOpen(false)} className="block font-semibold">Our Story</a>
-            <a href="#reviews" onClick={() => setMobileMenuOpen(false)} className="block font-semibold">Reviews</a>
-            <a href="#contact" onClick={() => setMobileMenuOpen(false)} className="block font-semibold">Contact</a>
-            <button onClick={() => { setOrdersOpen(true); setMobileMenuOpen(false); }} className="block font-semibold">My Orders</button>
-            {currentUser ? (
-              <button onClick={logout} className="block text-[#E85D24] font-bold">Logout</button>
-            ) : (
-              <button onClick={() => { setAuthOpen(true); setMobileMenuOpen(false); }} className="block text-[#E85D24] font-bold">Sign In</button>
-            )}
-            {currentUser && ["Kitchen Staff", "Manager", "Admin"].includes(currentUser.role) && (
-              <button onClick={() => { setKitchenOpen(true); setMobileMenuOpen(false); }} className="block font-semibold">Kitchen Dashboard</button>
-            )}
-            {currentUser && ["Manager", "Admin"].includes(currentUser.role) && (
-              <button onClick={() => { setInventoryOpen(true); setMobileMenuOpen(false); }} className="block font-semibold">Inventory Management</button>
-            )}
-          </div>
+      <button
+        onClick={() => setCartOpen(true)}
+        className="relative w-9 h-9 rounded-full hover:bg-white flex items-center justify-center"
+        aria-label="Open cart"
+      >
+        <ShoppingBag size={19} />
+        {cartCount > 0 && (
+          <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#E85D24] text-white text-[10px] rounded-full flex items-center justify-center font-bold">
+            {cartCount}
+          </span>
         )}
-      </nav>
+      </button>
+
+      <button
+        onClick={() => setOrdersOpen(true)}
+        className="hidden 2xl:block border border-[#29231F]/20 px-3 py-2 rounded-full text-xs font-semibold hover:bg-white transition whitespace-nowrap"
+      >
+        My Orders
+      </button>
+
+      {/* Staff Controls */}
+      {(currentUser?.role === "Kitchen Staff" ||
+        currentUser?.role === "Manager" ||
+        currentUser?.role === "Admin") && (
+        <button
+          onClick={() => setKitchenOpen(true)}
+          className="hidden xl:block bg-[#29231F] text-white px-3 py-2 rounded-full text-xs font-semibold hover:bg-[#E85D24] whitespace-nowrap"
+        >
+          Kitchen
+        </button>
+      )}
+
+      {(currentUser?.role === "Manager" ||
+        currentUser?.role === "Admin") && (
+        <button
+          onClick={() => setInventoryOpen(true)}
+          className="hidden xl:block bg-[#899477] text-white px-3 py-2 rounded-full text-xs font-semibold whitespace-nowrap"
+        >
+          Inventory
+        </button>
+      )}
+
+      {currentUser?.role === "Admin" && (
+        <button
+          onClick={() => setAdminOpen(true)}
+          className="hidden xl:block bg-orange-600 text-white px-3 py-2 rounded-full text-xs font-semibold hover:bg-orange-700 transition whitespace-nowrap"
+        >
+          Admin Dashboard
+        </button>
+      )}
+
+      {/* User */}
+      {currentUser ? (
+        <div className="hidden xl:flex items-center gap-2 border-l border-[#29231F]/15 pl-3">
+          <span className="text-xs font-bold max-w-[75px] truncate">
+            {currentUser.name}
+          </span>
+          <button
+            onClick={logout}
+            className="border border-[#E85D24] text-[#E85D24] px-3 py-2 rounded-full text-xs font-bold hover:bg-[#E85D24] hover:text-white transition whitespace-nowrap"
+          >
+            Logout
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={() => setAuthOpen(true)}
+          className="hidden md:flex items-center gap-2 orange-gradient text-white px-4 py-2.5 rounded-full text-xs font-bold"
+        >
+          <UserRound size={15} />
+          Sign In
+        </button>
+      )}
+
+      {/* Mobile Menu Button */}
+      <button
+        className="lg:hidden w-9 h-9 flex items-center justify-center"
+        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        aria-label="Toggle menu"
+      >
+        {mobileMenuOpen ? <X /> : <MenuIcon />}
+      </button>
+    </div>
+  </div>
+
+  {/* Mobile Menu */}
+  {mobileMenuOpen && (
+    <div className="lg:hidden bg-[#F8F3EA] border-t border-[#29231F]/10 px-6 py-5 space-y-4">
+      <a href="#menu" onClick={() => setMobileMenuOpen(false)} className="block font-semibold">Our Menu</a>
+      <a href="#about" onClick={() => setMobileMenuOpen(false)} className="block font-semibold">Our Story</a>
+      <a href="#reviews" onClick={() => setMobileMenuOpen(false)} className="block font-semibold">Reviews</a>
+      <a href="#contact" onClick={() => setMobileMenuOpen(false)} className="block font-semibold">Contact</a>
+
+      <button onClick={() => { setOrdersOpen(true); setMobileMenuOpen(false); }} className="block font-semibold">
+        My Orders
+      </button>
+
+      {currentUser && ["Kitchen Staff", "Manager", "Admin"].includes(currentUser.role) && (
+        <button onClick={() => { setKitchenOpen(true); setMobileMenuOpen(false); }} className="block font-semibold">
+          Kitchen Dashboard
+        </button>
+      )}
+
+      {currentUser && ["Manager", "Admin"].includes(currentUser.role) && (
+        <button onClick={() => { setInventoryOpen(true); setMobileMenuOpen(false); }} className="block font-semibold">
+          Inventory Management
+        </button>
+      )}
+
+      {currentUser?.role === "Admin" && (
+        <button onClick={() => { setAdminOpen(true); setMobileMenuOpen(false); }} className="block font-semibold text-orange-600">
+          Admin Dashboard
+        </button>
+      )}
+
+      {currentUser ? (
+        <button onClick={logout} className="block text-[#E85D24] font-bold">
+          Logout
+        </button>
+      ) : (
+        <button onClick={() => { setAuthOpen(true); setMobileMenuOpen(false); }} className="block text-[#E85D24] font-bold">
+          Sign In
+        </button>
+      )}
+    </div>
+  )}
+</nav>
+
 
       {/* Checkout */}
       {checkoutOpen && (
