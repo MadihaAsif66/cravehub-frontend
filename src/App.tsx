@@ -613,7 +613,7 @@ if (selectedFood) {
 
       <button
         onClick={() => setOrdersOpen(true)}
-        className="hidden 2xl:block border border-[#29231F]/20 px-3 py-2 rounded-full text-xs font-semibold hover:bg-white transition whitespace-nowrap"
+        className="hidden md:block border border-[#29231F]/20 px-3 py-2 rounded-full text-xs font-semibold hover:bg-white transition whitespace-nowrap"
       >
         My Orders
       </button>
