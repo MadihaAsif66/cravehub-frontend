@@ -28,7 +28,7 @@ function KitchenDashboard({ token, role }: KitchenDashboardProps) {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/orders", {
+      const response = await fetch("https://cravehub-backend.netlify.app/api/orders", {
   headers: {
     Authorization: `Bearer ${token}`,
   },
@@ -55,7 +55,7 @@ function KitchenDashboard({ token, role }: KitchenDashboardProps) {
 const updateStatus = async (id: string, status: string) => {
   try {
     const response = await fetch(
-      `http://localhost:5000/api/orders/${id}/status`,
+      `https://cravehub-backend.netlify.app/api/orders/${id}/status`,
       {
         method: "PATCH",
         headers: {

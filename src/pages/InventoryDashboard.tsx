@@ -22,7 +22,7 @@ type InventoryDashboardProps = {
   token: string;
 };
 
-const API_URL = "http://localhost:5000/api/inventory";
+const API_URL = "https://cravehub-backend.netlify.app/api/inventory";
 
 export default function InventoryDashboard({ token }: InventoryDashboardProps) {
   const [items, setItems] = useState<InventoryItem[]>([]);
